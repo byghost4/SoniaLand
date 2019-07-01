@@ -18,12 +18,21 @@ public class CameraManager : MonoBehaviour
     private float distance;
 
     private const float MAX_DISTANCE = 15;
-    private const float MIN_DISTANCE = 0.5f;
+    private const float MIN_DISTANCE = 1.5f;
 
     [SerializeField]
     private float smoothTime = 0.3f;
+
+    [SerializeField]
+    private float moveSpeed = 0.3f;
+
     private Vector3 smoothValue = Vector3.zero;
 
+    private Vector2 lastPoint;
+    private Vector2 nowPoint;
+
+    [SerializeField]
+    private bool mouse1FirstDown;
 
     private void Start()
     {
@@ -40,6 +49,7 @@ public class CameraManager : MonoBehaviour
     {
         transform.LookAt(playerManager.transform);
         transform.position = Vector3.SmoothDamp(transform.position,SetCameraPos(),ref smoothValue, smoothTime);
+        SetCameraRotX();
     }
 
     private void InitSet()
@@ -65,11 +75,14 @@ public class CameraManager : MonoBehaviour
         return pos;
     }
 
+
+    /// <summary>
+    /// 设置摄像机据目标点距离
+    /// </summary>
     private void SetCameraDistance()
     {
         if(Input.GetAxis("Mouse ScrollWheel") > 0)
         {
-            Debug.Log("放大");
             if (distance <= MIN_DISTANCE)
                 return;
             distance -= 0.5f;
@@ -79,6 +92,32 @@ public class CameraManager : MonoBehaviour
             if (distance >= MAX_DISTANCE)
                 return;
             distance += 0.5f;
+        }
+    }
+
+    private void SetCameraRotX()
+    {
+        if (Input.GetMouseButtonDown(1))
+        {
+            mouse1FirstDown = true;
+        }
+
+        if (Input.GetMouseButton(1))
+        {
+            nowPoint = Input.mousePosition;
+            if (mouse1FirstDown)
+            {
+                lastPoint = nowPoint;
+                mouse1FirstDown = false;
+            }
+            if ((nowPoint - lastPoint).sqrMagnitude != 0)
+            {
+                float x = nowPoint.x - lastPoint.x;
+                float y = nowPoint.y - lastPoint.y;
+                transform.RotateAround(playerManager.transform.position, transform.right, y * Time.deltaTime * moveSpeed);
+                transform.RotateAround( playerManager.transform.position, Vector3.up, x * Time.deltaTime * moveSpeed);
+            }
+            lastPoint = nowPoint;
         }
     }
 
