@@ -10,6 +10,13 @@ public class CameraManager : MonoBehaviour
 {
     private PlayerManager playerManager;
 
+    public enum CameraCtrlState
+    {
+        isCtrl,
+        NoCtrl
+    }
+
+    public CameraCtrlState cameraCtrlState = CameraCtrlState.NoCtrl;
 
 
     [SerializeField]
@@ -64,6 +71,7 @@ public class CameraManager : MonoBehaviour
         {
             playerManager = FindObjectOfType<PlayerManager>();
         }
+        playerManager.cameraManager = this;
         return playerManager;
     }
 
@@ -100,6 +108,7 @@ public class CameraManager : MonoBehaviour
         if (Input.GetMouseButtonDown(1))
         {
             mouse1FirstDown = true;
+            cameraCtrlState = CameraCtrlState.isCtrl;
         }
 
         if (Input.GetMouseButton(1))
@@ -118,6 +127,11 @@ public class CameraManager : MonoBehaviour
                 transform.RotateAround( playerManager.transform.position, Vector3.up, x * Time.deltaTime * moveSpeed);
             }
             lastPoint = nowPoint;
+        }
+
+        if (Input.GetMouseButtonUp(1))
+        {
+            cameraCtrlState = CameraCtrlState.NoCtrl;
         }
     }
 
